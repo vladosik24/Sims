@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Сімс Україна</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #0a1628;
+  --bg2: #111f3a;
+  --card: #162544;
+  --card2: #1a2d52;
+  --accent: #00e5a0;
+  --accent2: #00c48c;
+  --warn: #ff6b6b;
+  --gold: #ffd700;
+  --blue: #4dabf7;
+  --pink: #f06595;
+  --purple: #b197fc;
+  --text: #e8edf5;
+  --text2: #8899b8;
+  --radius: 16px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+}
+
+/* === ANIMATED BG === */
+.bg-particles {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  pointer-events: none; z-index:0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(0,229,160,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(75,171,247,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(240,101,149,0.04) 0%, transparent 50%);
+}
+
+/* === HEADER === */
+.header {
+  position: sticky; top:0; z-index:100;
+  background: linear-gradient(135deg, var(--bg2), var(--card));
+  backdrop-filter: blur(20px);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(0,229,160,0.15);
+}
+.header-left { display:flex; align-items:center; gap:10px; }
+.header-avatar {
+  width:42px; height:42px; border-radius:50%;
+  background: linear-gradient(135deg, var(--accent), var(--blue));
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:700;
+  box-shadow: 0 0 16px rgba(0,229,160,0.3);
+}
+.header-info h2 { font-family:'Comfortaa',sans-serif; font-size:15px; font-weight:700; }
+.header-info span { font-size:11px; color:var(--text2); }
+.header-coins {
+  display:flex; align-items:center; gap:6px;
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.2);
+  padding: 6px 12px; border-radius:20px;
+  font-weight:700; font-size:14px; color:var(--gold);
+}
+
+/* === NEEDS BARS === */
+.needs-panel {
+  padding: 12px 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  position: relative; z-index:1;
+}
+.need-item {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.need-icon { font-size:18px; width:24px; text-align:center; }
+.need-bar-wrap { flex:1; }
+.need-label {
+  display:flex; justify-content:space-between;
+  font-size:10px; color:var(--text2); margin-bottom:3px;
+}
+.need-bar {
+  height:6px; background:rgba(255,255,255,0.08);
+  border-radius:3px; overflow:hidden;
+}
+.need-fill {
+  height:100%; border-radius:3px;
+  transition: width 0.5s ease, background 0.3s;
+}
+.need-fill.high { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+.need-fill.mid { background: linear-gradient(90deg, #ffa726, var(--gold)); }
+.need-fill.low { background: linear-gradient(90deg, #e53935, var(--warn)); }
+
+/* === TAB NAV === */
+.tab-nav {
+  position: fixed; bottom:0; left:0; right:0; z-index:100;
+  background: linear-gradient(180deg, var(--bg2), var(--bg));
+  border-top: 1px solid rgba(0,229,160,0.1);
+  display:flex; justify-content:space-around;
+  padding: 8px 0 12px;
+}
+.tab-btn {
+  background:none; border:none; color:var(--text2);
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  font-size:10px; font-family:'Nunito',sans-serif; font-weight:600;
+  cursor:pointer; padding:4px 12px; border-radius:12px;
+  transition: all 0.3s;
+}
+.tab-btn.active { color:var(--accent); }
+.tab-btn.active .tab-icon { 
+  background:rgba(0,229,160,0.15); 
+  box-shadow: 0 0 12px rgba(0,229,160,0.2);
+}
+.tab-icon {
+  font-size:22px; width:36px; height:36px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:12px; transition: all 0.3s;
+}
+
+/* === PAGES === */
+.page { 
+  display:none; padding:16px; position:relative; z-index:1;
+  animation: fadeIn 0.3s ease;
+}
+.page.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+/* === CARDS === */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: transform 0.2s;
+}
+.card:active { transform: scale(0.98); }
+.card-title {
+  font-family:'Comfortaa',sans-serif;
+  font-size:14px; font-weight:700;
+  margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.card-title .emoji { font-size:20px; }
+
+/* === BUTTONS === */
+.btn {
+  width:100%; padding:12px;
+  border:none; border-radius:12px;
+  font-family:'Nunito',sans-serif;
+  font-size:14px; font-weight:700;
+  cursor:pointer; transition: all 0.3s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #0a1628;
+  box-shadow: 0 4px 16px rgba(0,229,160,0.3);
+}
+.btn-primary:active { transform:scale(0.97); box-shadow: 0 2px 8px rgba(0,229,160,0.2); }
+.btn-secondary {
+  background: var(--card2);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.btn-small {
+  width:auto; padding:8px 16px; font-size:12px;
+  border-radius:10px;
+}
+.btn-warn { background: linear-gradient(135deg, var(--warn), #e53935); color:#fff; }
+.btn-gold { background: linear-gradient(135deg, var(--gold), #ffab00); color:#1a1a1a; }
+
+/* === GRID ITEMS === */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+
+.action-card {
+  background: var(--card2);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align:center;
+  cursor:pointer;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: all 0.3s;
+}
+.action-card:active { transform:scale(0.95); background: var(--card); }
+.action-card .icon { font-size:28px; margin-bottom:6px; }
+.action-card .name { font-size:12px; font-weight:700; margin-bottom:2px; }
+.action-card .desc { font-size:10px; color:var(--text2); }
+
+/* === HOUSE GRID === */
+.house-grid {
+  display:grid;
+  grid-template-columns: repeat(6,1fr);
+  grid-template-rows: repeat(6,1fr);
+  gap:3px;
+  aspect-ratio:1;
+  background: rgba(255,255,255,0.03);
+  border-radius:14px;
+  padding:6px;
+  border: 1px solid rgba(0,229,160,0.1);
+}
+.house-cell {
+  background: rgba(255,255,255,0.04);
+  border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  cursor:pointer;
+  transition: all 0.2s;
+  aspect-ratio:1;
+}
+.house-cell:active { background: rgba(0,229,160,0.15); }
+.house-cell.placed { background: rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); }
+
+/* === FURNITURE PICKER === */
+.furniture-picker {
+  display:flex; gap:8px; overflow-x:auto;
+  padding:8px 0; scrollbar-width:none;
+}
+.furniture-picker::-webkit-scrollbar { display:none; }
+.furn-item {
+  min-width:60px; padding:8px;
+  background:var(--card2);
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:all 0.2s;
+}
+.furn-item.selected { border-color:var(--accent); background:rgba(0,229,160,0.1); }
+.furn-item .f-icon { font-size:24px; }
+.furn-item .f-name { font-size:9px; color:var(--text2); margin-top:2px; }
+.furn-item .f-price { font-size:9px; color:var(--gold); }
+
+/* === SHOP/JOB/SOCIAL ITEMS === */
+.list-item {
+  display:flex; align-items:center; gap:12px;
+  background:var(--card2);
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.list-item:active { transform:scale(0.98); }
+.list-item .li-icon { font-size:30px; width:44px; text-align:center; }
+.list-item .li-info { flex:1; }
+.list-item .li-name { font-size:13px; font-weight:700; }
+.list-item .li-desc { font-size:10px; color:var(--text2); }
+.list-item .li-action {
+  padding:6px 14px; border-radius:10px;
+  font-size:11px; font-weight:700;
+  border:none; cursor:pointer;
+  background:rgba(0,229,160,0.15);
+  color:var(--accent);
+  transition:all 0.2s;
+}
+.list-item .li-action:active { background:rgba(0,229,160,0.3); }
+
+/* === CHARACTER CREATION === */
+.char-preview {
+  width:120px; height:120px;
+  border-radius:50%;
+  background: linear-gradient(135deg, var(--card2), var(--card));
+  margin:0 auto 16px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:60px;
+  border: 3px solid rgba(0,229,160,0.3);
+  box-shadow: 0 0 30px rgba(0,229,160,0.15);
+}
+.trait-chips {
+  display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;
+}
+.trait-chip {
+  padding:6px 12px; border-radius:20px;
+  font-size:11px; font-weight:600;
+  background:var(--card2);
+  border:1px solid rgba(255,255,255,0.06);
+  cursor:pointer; transition:all 0.2s;
+}
+.trait-chip.selected {
+  background:rgba(0,229,160,0.15);
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+/* === MODAL === */
+.modal-overlay {
+  position:fixed; top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(8px);
+  z-index:200;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.modal-overlay.show { display:flex; }
+.modal {
+  background:var(--bg2);
+  border-radius:20px 20px 0 0;
+  padding:20px 16px 32px;
+  width:100%;
+  max-height:80vh;
+  overflow-y:auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:none} }
+.modal-handle {
+  width:40px; height:4px;
+  background:rgba(255,255,255,0.2);
+  border-radius:2px;
+  margin:0 auto 16px;
+}
+.modal-title {
+  font-family:'Comfortaa',sans-serif;
+  font-size:18px; font-weight:700;
+  text-align:center; margin-bottom:16px;
+}
+
+/* === TOAST === */
+.toast {
+  position:fixed; top:70px; left:50%; transform:translateX(-50%) translateY(-100px);
+  background:var(--card2);
+  border:1px solid rgba(0,229,160,0.3);
+  border-radius:14px;
+  padding:10px 20px;
+  font-size:13px; font-weight:600;
+  z-index:300;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;
+  box-shadow: var(--shadow);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* === LEVEL BADGE === */
+.level-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  padding:3px 10px; border-radius:12px;
+  font-size:11px; font-weight:700;
+}
+
+/* === XP BAR === */
+.xp-bar-wrap {
+  margin-top:6px;
+}
+.xp-bar {
+  height:4px; background:rgba(255,255,255,0.08);
+  border-radius:2px; overflow:hidden;
+}
+.xp-fill {
+  height:100%; border-radius:2px;
+  background:linear-gradient(90deg, var(--purple), var(--pink));
+  transition: width 0.5s;
+}
+
+/* === RELATIONSHIPS === */
+.rel-heart { color:var(--pink); }
+
+/* === TIME DISPLAY === */
+.time-display {
+  text-align:center; padding:8px;
+  font-family:'Comfortaa',sans-serif;
+  font-size:12px; color:var(--text2);
+}
+.time-display .day { font-size:16px; color:var(--text); font-weight:700; }
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+
+/* === INPUT === */
+.input {
+  width:100%; padding:12px 16px;
+  background:var(--card2);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  color:var(--text);
+  font-family:'Nunito',sans-serif;
+  font-size:14px;
+  outline:none;
+  transition:border-color 0.3s;
+}
+.input:focus { border-color:var(--accent); }
+.input::placeholder { color:var(--text2); }
+
+.stat-row {
+  display:flex; justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:13px;
+}
+.stat-row:last-child { border:none; }
+.stat-val { color:var(--accent); font-weight:700; }
+
+/* Pulse animation */
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+.pulse { animation: pulse 2s infinite; }
+
+/* Glow */
+.glow { box-shadow: 0 0 20px rgba(0,229,160,0.2); }
+</style>
+</head>
+<body>
+
+<div class="bg-particles"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-avatar" id="headerAvatar">😊</div>
+    <div class="header-info">
+      <h2 id="headerName">Завантаження...</h2>
+      <span><span class="level-badge" id="headerLevel">⭐ Рів. 1</span></span>
+    </div>
+  </div>
+  <div class="header-coins">💰 <span id="headerCoins">0</span></div>
+</div>
+
+<!-- NEEDS -->
+<div class="needs-panel" id="needsPanel"></div>
+
+<!-- TIME -->
+<div class="time-display">
+  <div class="day" id="gameDay">День 1</div>
+  <div id="gameTime">🌅 Ранок</div>
+</div>
+
+<!-- === PAGES === -->
+
+<!-- HOME -->
+<div class="page active" id="pageHome">
+  <div class="card">
+    <div class="card-title"><span class="emoji">🏠</span> Швидкі дії</div>
+    <div class="grid-2" id="quickActions"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">📊</span> Статистика</div>
+    <div id="statsBlock"></div>
+  </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="page" id="pageActions">
+  <div class="card">
+    <div class="card-title"><span class="emoji">⚡</span> Активності</div>
+    <div id="actionsList"></div>
+  </div>
+</div>
+
+<!-- HOUSE -->
+<div class="page" id="pageHouse">
+  <div class="card">
+    <div class="card-title"><span class="emoji">🏡</span> Мій будинок</div>
+    <div class="furniture-picker" id="furniturePicker"></div>
+    <div class="house-grid" id="houseGrid"></div>
+    <div style="margin-top:10px;text-align:center">
+      <button class="btn btn-secondary btn-small" onclick="clearFurniture()">🗑 Очистити</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div class="page" id="pageShop">
+  <div class="card">
+    <div class="card-title"><span class="emoji">🛒</span> Магазин</div>
+    <div id="shopList"></div>
+  </div>
+</div>
+
+<!-- SOCIAL -->
+<div class="page" id="pageSocial">
+  <div class="card">
+    <div class="card-title"><span class="emoji">💬</span> Стосунки</div>
+    <div id="socialList"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="pageProfile">
+  <div class="card" style="text-align:center">
+    <div class="char-preview" id="profileAvatar">😊</div>
+    <h2 id="profileName" style="font-family:Comfortaa;margin-bottom:4px"></h2>
+    <div id="profileTraits" style="margin-bottom:12px"></div>
+    <div class="xp-bar-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2)">
+        <span id="xpText">0 / 100 XP</span>
+        <span id="lvlText">Рів. 1</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">💼</span> Кар'єра</div>
+    <div id="careerInfo"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">🏆</span> Досягнення</div>
+    <div id="achievementsList"></div>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('Home')">
+    <span class="tab-icon">🏠</span>Дім
+  </button>
+  <button class="tab-btn" onclick="switchTab('Actions')">
+    <span class="tab-icon">⚡</span>Дії
+  </button>
+  <button class="tab-btn" onclick="switchTab('House')">
+    <span class="tab-icon">🏡</span>Будинок
+  </button>
+  <button class="tab-btn" onclick="switchTab('Shop')">
+    <span class="tab-icon">🛒</span>Магазин
+  </button>
+  <button class="tab-btn" onclick="switchTab('Social')">
+    <span class="tab-icon">💬</span>Люди
+  </button>
+  <button class="tab-btn" onclick="switchTab('Profile')">
+    <span class="tab-icon">👤</span>Профіль
+  </button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- CHARACTER CREATION MODAL -->
+<div class="modal-overlay" id="createCharOverlay" style="display:none;align-items:center;">
+  <div class="modal" style="border-radius:20px;max-width:400px;margin:16px;">
+    <div class="modal-title">🎮 Створити персонажа</div>
+    <div class="char-preview" id="createAvatar">😊</div>
+    <div class="grid-3" style="margin-bottom:12px" id="avatarPicker"></div>
+    <input class="input" id="charNameInput" placeholder="Ім'я персонажа" maxlength="20" style="margin-bottom:12px">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Обери 2 риси характеру:</div>
+    <div class="trait-chips" id="traitPicker"></div>
+    <button class="btn btn-primary" style="margin-top:16px" onclick="createCharacter()">✨ Створити</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// СІМС УКРАЇНА - ПОВНИЙ МІНІ ЗАСТОСУНОК
+// ============================================================
+
+const tg = window.Telegram && window.Telegram.WebApp;
+if(tg) { tg.ready(); tg.expand(); }
+const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+const userId = tgUser ? tgUser.id : 'test_' + Math.random().toString(36).slice(2,8);
+
+// ---- FIREBASE CONFIG ----
+const FB_URL = 'https://sims-ukraine-default-rtdb.firebaseio.com';
+
+async function fbGet(path) {
+  try {
+    const r = await fetch(`${FB_URL}/${path}.json`);
+    return await r.json();
+  } catch(e) { return null; }
+}
+async function fbSet(path, data) {
+  try {
+    await fetch(`${FB_URL}/${path}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  } catch(e) {}
+}
+
+// ---- GAME DATA ----
+const AVATARS = ['😊','😎','🤩','😇','🥰','😏','🤓','😺','🧑','👩','👨','🧔','👱','🧑‍🦰','👩‍🦱','🧑‍🦳'];
+const TRAITS = [
+  {id:'creative',name:'Креативний',icon:'🎨'},
+  {id:'social',name:'Товариський',icon:'💬'},
+  {id:'sporty',name:'Спортивний',icon:'💪'},
+  {id:'smart',name:'Розумний',icon:'🧠'},
+  {id:'lazy',name:'Лінивий',icon:'😴'},
+  {id:'romantic',name:'Романтик',icon:'💕'},
+  {id:'adventurer',name:'Авантюрист',icon:'🌍'},
+  {id:'foodie',name:'Гурман',icon:'🍕'},
+];
+
+const NEEDS = [
+  {id:'hunger',name:'Голод',icon:'🍔',decay:0.8},
+  {id:'energy',name:'Енергія',icon:'⚡',decay:1.0},
+  {id:'hygiene',name:'Гігієна',icon:'🚿',decay:0.6},
+  {id:'fun',name:'Настрій',icon:'😄',decay:0.7},
+  {id:'social',name:'Спілкування',icon:'💬',decay:0.5},
+  {id:'comfort',name:'Комфорт',icon:'🛋️',decay:0.3},
+];
+
+const JOBS = [
+  {id:'none',name:'Безробітний',salary:0,icon:'😐',lvl:0},
+  {id:'cleaner',name:'Прибиральник',salary:50,icon:'🧹',lvl:1},
+  {id:'waiter',name:'Офіціант',salary:100,icon:'🍽️',lvl:2},
+  {id:'cook',name:'Кухар',salary:180,icon:'👨‍🍳',lvl:3},
+  {id:'driver',name:'Водій',salary:250,icon:'🚗',lvl:5},
+  {id:'teacher',name:'Вчитель',salary:350,icon:'📚',lvl:7},
+  {id:'developer',name:'Програміст',salary:500,icon:'💻',lvl:10},
+  {id:'doctor',name:'Лікар',salary:700,icon:'🩺',lvl:13},
+  {id:'director',name:'Директор',salary:1000,icon:'🏢',lvl:16},
+  {id:'star',name:'Зірка',salary:1500,icon:'⭐',lvl:20},
+];
+
+const FURNITURE = [
+  {id:'bed',icon:'🛏️',name:'Ліжко',price:200,comfort:15,energy:10},
+  {id:'sofa',icon:'🛋️',name:'Диван',price:150,comfort:10,fun:5},
+  {id:'table',icon:'🪑',name:'Стіл',price:80,comfort:5},
+  {id:'tv',icon:'📺',name:'Телевізор',price:300,fun:20},
+  {id:'fridge',icon:'🧊',name:'Холодильник',price:250,hunger:15},
+  {id:'stove',icon:'🍳',name:'Плита',price:200,hunger:10},
+  {id:'shower',icon:'🚿',name:'Душ',price:180,hygiene:20},
+  {id:'toilet',icon:'🚽',name:'Туалет',price:100,hygiene:10},
+  {id:'plant',icon:'🪴',name:'Рослина',price:50,comfort:5,fun:3},
+  {id:'lamp',icon:'💡',name:'Лампа',price:60,comfort:8},
+  {id:'pc',icon:'🖥️',name:'Компʼютер',price:500,fun:25},
+  {id:'bookshelf',icon:'📚',name:'Книжки',price:120,fun:10},
+  {id:'painting',icon:'🖼️',name:'Картина',price:80,comfort:8,fun:5},
+  {id:'gym',icon:'🏋️',name:'Тренажер',price:400,energy:15,fun:10},
+  {id:'bath',icon:'🛁',name:'Ванна',price:350,hygiene:25,comfort:10},
+  {id:'piano',icon:'🎹',name:'Піаніно',price:600,fun:30},
+];
+
+const ACTIONS = [
+  {id:'eat',name:'Поїсти',icon:'🍔',needs:{hunger:25},cost:20,time:1,xp:5},
+  {id:'cook',name:'Готувати',icon:'🍳',needs:{hunger:40},cost:30,time:2,xp:15,req:'stove'},
+  {id:'sleep',name:'Спати',icon:'😴',needs:{energy:50},cost:0,time:4,xp:5,req:'bed'},
+  {id:'nap',name:'Дрімати',icon:'💤',needs:{energy:20},cost:0,time:1,xp:3},
+  {id:'shower',name:'Помитися',icon:'🚿',needs:{hygiene:40},cost:5,time:1,xp:5,req:'shower'},
+  {id:'bath',name:'Прийняти ванну',icon:'🛁',needs:{hygiene:50,comfort:15},cost:10,time:2,xp:10,req:'bath'},
+  {id:'tv',name:'Дивитися ТВ',icon:'📺',needs:{fun:20,comfort:5},cost:0,time:1,xp:5,req:'tv'},
+  {id:'game',name:'Грати на ПК',icon:'🎮',needs:{fun:35},cost:0,time:2,xp:15,req:'pc'},
+  {id:'read',name:'Читати',icon:'📖',needs:{fun:15},cost:0,time:1,xp:20,req:'bookshelf'},
+  {id:'exercise',name:'Тренуватись',icon:'💪',needs:{energy:-10,fun:15},cost:0,time:2,xp:25,req:'gym'},
+  {id:'walk',name:'Прогулятись',icon:'🚶',needs:{fun:15,social:10,energy:-5},cost:0,time:2,xp:10},
+  {id:'chat',name:'Поговорити',icon:'💬',needs:{social:25},cost:0,time:1,xp:10},
+  {id:'party',name:'Вечірка',icon:'🎉',needs:{fun:30,social:30,energy:-15},cost:100,time:3,xp:30},
+  {id:'music',name:'Грати музику',icon:'🎹',needs:{fun:25,comfort:5},cost:0,time:1,xp:15,req:'piano'},
+  {id:'clean',name:'Прибрати',icon:'🧹',needs:{hygiene:10,comfort:15},cost:0,time:1,xp:10},
+  {id:'meditate',name:'Медитувати',icon:'🧘',needs:{comfort:20,energy:10},cost:0,time:1,xp:15},
+];
+
+const SHOP_ITEMS = [
+  {id:'coffee',name:'Кава',icon:'☕',price:15,effect:{energy:15}},
+  {id:'pizza',name:'Піца',icon:'🍕',price:40,effect:{hunger:30}},
+  {id:'cake',name:'Торт',icon:'🎂',price:60,effect:{hunger:20,fun:15}},
+  {id:'perfume',name:'Парфуми',icon:'🧴',price:80,effect:{hygiene:20,social:10}},
+  {id:'book',name:'Книга',icon:'📕',price:50,effect:{fun:20},xp:25},
+  {id:'phone',name:'Телефон',icon:'📱',price:200,effect:{social:25,fun:15}},
+  {id:'gift',name:'Подарунок',icon:'🎁',price:100,social_gift:true},
+  {id:'energy_drink',name:'Енергетик',icon:'🥤',price:30,effect:{energy:25,hunger:-5}},
+];
+
+const NPC_NAMES = ['Оксана','Тарас','Марія','Андрій','Юлія','Богдан','Катерина','Олексій','Наталя','Іван','Дарина','Микола'];
+const NPC_AVATARS = ['👩','👨','👩‍🦰','🧔','👱‍♀️','👨‍🦱','👩‍🦳','🧑','👩‍🦲','👨‍🦳','🧑‍🦰','👱'];
+
+// ---- GAME STATE ----
+let G = null;
+
+function defaultState() {
+  const npcs = [];
+  for(let i=0;i<6;i++){
+    npcs.push({
+      id:'npc_'+i, name:NPC_NAMES[i], avatar:NPC_AVATARS[i],
+      relationship:0, type:'friend'
+    });
+  }
+  return {
+    name: tgUser ? tgUser.first_name : 'Гравець',
+    avatar: '😊',
+    traits: [],
+    coins: 500,
+    xp: 0,
+    level: 1,
+    job: 'none',
+    day: 1,
+    timeSlot: 0,
+    needs: { hunger:80, energy:100, hygiene:90, fun:70, social:60, comfort:70 },
+    house: Array(36).fill(null),
+    ownedFurniture: ['bed','table'],
+    npcs: npcs,
+    achievements: [],
+    totalActions: 0,
+    totalEarned: 0,
+    created: true
+  };
+}
+
+// ---- INIT ----
+async function init() {
+  G = await fbGet('sims/'+userId);
+  if(!G || !G.created) {
+    showCreateChar();
+    return;
+  }
+  renderAll();
+  startDecayLoop();
+}
+
+function showCreateChar() {
+  const ov = document.getElementById('createCharOverlay');
+  ov.style.display = 'flex';
+  
+  const picker = document.getElementById('avatarPicker');
+  picker.innerHTML = AVATARS.map(a =>
+    `<div class="action-card" onclick="selectAvatar('${a}')" style="padding:8px">
+      <span style="font-size:28px">${a}</span>
+    </div>`
+  ).join('');
+
+  const traits = document.getElementById('traitPicker');
+  traits.innerHTML = TRAITS.map(t =>
+    `<div class="trait-chip" onclick="toggleTrait('${t.id}',this)">${t.icon} ${t.name}</div>`
+  ).join('');
+
+  document.getElementById('charNameInput').value = tgUser ? tgUser.first_name : '';
+}
+
+let selectedTraits = [];
+function selectAvatar(a) {
+  document.getElementById('createAvatar').textContent = a;
+}
+function toggleTrait(id, el) {
+  if(selectedTraits.includes(id)) {
+    selectedTraits = selectedTraits.filter(t=>t!==id);
+    el.classList.remove('selected');
+  } else if(selectedTraits.length < 2) {
+    selectedTraits.push(id);
+    el.classList.add('selected');
+  }
+}
+
+async function createCharacter() {
+  const name = document.getElementById('charNameInput').value.trim() || 'Сім';
+  const avatar = document.getElementById('createAvatar').textContent;
+  if(selectedTraits.length < 1) { showToast('Обери хоча б 1 рису!'); return; }
+  
+  G = defaultState();
+  G.name = name;
+  G.avatar = avatar;
+  G.traits = selectedTraits;
+  
+  await saveGame();
+  document.getElementById('createCharOverlay').style.display = 'none';
+  renderAll();
+  startDecayLoop();
+  showToast('🎉 Ласкаво просимо, '+name+'!');
+}
+
+// ---- SAVE ----
+let saveTimeout;
+function saveGame() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(()=> fbSet('sims/'+userId, G), 300);
+}
+
+// ---- RENDER ----
+function renderAll() {
+  renderHeader();
+  renderNeeds();
+  renderHome();
+  renderActions();
+  renderHouse();
+  renderShop();
+  renderSocial();
+  renderProfile();
+}
+
+function renderHeader() {
+  document.getElementById('headerAvatar').textContent = G.avatar;
+  document.getElementById('headerName').textContent = G.name;
+  document.getElementById('headerLevel').textContent = '⭐ Рів. '+G.level;
+  document.getElementById('headerCoins').textContent = G.coins;
+}
+
+function renderNeeds() {
+  const p = document.getElementById('needsPanel');
+  p.innerHTML = NEEDS.map(n => {
+    const v = Math.round(G.needs[n.id]||0);
+    const cls = v > 60 ? 'high' : v > 30 ? 'mid' : 'low';
+    return `<div class="need-item">
+      <span class="need-icon">${n.icon}</span>
+      <div class="need-bar-wrap">
+        <div class="need-label"><span>${n.name}</span><span>${v}%</span></div>
+        <div class="need-bar"><div class="need-fill ${cls}" style="width:${v}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  document.getElementById('gameDay').textContent = 'День ' + G.day;
+  const times = ['🌅 Ранок','☀️ День','🌆 Вечір','🌙 Ніч'];
+  document.getElementById('gameTime').textContent = times[G.timeSlot % 4];
+}
+
+function renderHome() {
+  const qa = document.getElementById('quickActions');
+  const quick = [
+    {icon:'🍔',name:'Поїсти',action:()=>doAction('eat')},
+    {icon:'😴',name:'Спати',action:()=>doAction('sleep')},
+    {icon:'🚿',name:'Помитися',action:()=>doAction('shower')},
+    {icon:'💼',name:'Працювати',action:()=>goToWork()},
+  ];
+  qa.innerHTML = quick.map((q,i) =>
+    `<div class="action-card" onclick="quickAction${i}()">
+      <div class="icon">${q.icon}</div>
+      <div class="name">${q.name}</div>
+    </div>`
+  ).join('');
+  
+  window.quickAction0 = ()=>doAction('eat');
+  window.quickAction1 = ()=>doAction('sleep');
+  window.quickAction2 = ()=>doAction('shower');
+  window.quickAction3 = ()=>goToWork();
+
+  const stats = document.getElementById('statsBlock');
+  const job = JOBS.find(j=>j.id===G.job);
+  stats.innerHTML = `
+    <div class="stat-row"><span>💼 Робота</span><span class="stat-val">${job.icon} ${job.name}</span></div>
+    <div class="stat-row"><span>💰 Зарплата</span><span class="stat-val">${job.salary}/зміну</span></div>
+    <div class="stat-row"><span>📅 День</span><span class="stat-val">${G.day}</span></div>
+    <div class="stat-row"><span>⚡ Дії</span><span class="stat-val">${G.totalActions}</span></div>
+    <div class="stat-row"><span>🏆 Досягнення</span><span class="stat-val">${G.achievements.length}</span></div>
+  `;
+}
+
+function renderActions() {
+  const list = document.getElementById('actionsList');
+  list.innerHTML = ACTIONS.map(a => {
+    const hasReq = !a.req || G.house.includes(a.req) || G.ownedFurniture.includes(a.req);
+    const canAfford = G.coins >= (a.cost||0);
+    const opacity = (hasReq && canAfford) ? '1' : '0.4';
+    const needsText = Object.entries(a.needs).map(([k,v])=>{
+      const n = NEEDS.find(n=>n.id===k);
+      return `${n?n.icon:''} ${v>0?'+':''}${v}`;
+    }).join(' ');
+    return `<div class="list-item" style="opacity:${opacity}" onclick="${hasReq&&canAfford ? `doAction('${a.id}')` : ''}">
+      <span class="li-icon">${a.icon}</span>
+      <div class="li-info">
+        <div class="li-name">${a.name}</div>
+        <div class="li-desc">${needsText} ${a.cost?'💰'+a.cost:''} ⏱${a.time}год ${a.req&&!hasReq?'🔒 Потрібен '+FURNITURE.find(f=>f.id===a.req)?.name:''}</div>
+      </div>
+      <button class="li-action">${hasReq&&canAfford?'▶':'🔒'}</button>
+    </div>`;
+  }).join('');
+}
+
+// --- HOUSE ---
+let selectedFurn = null;
+function renderHouse() {
+  const picker = document.getElementById('furniturePicker');
+  picker.innerHTML = FURNITURE.map(f => {
+    const owned = G.ownedFurniture.includes(f.id);
+    return `<div class="furn-item ${selectedFurn===f.id?'selected':''}" 
+      onclick="selectFurn('${f.id}')" style="${owned?'':'opacity:0.4'}">
+      <div class="f-icon">${f.icon}</div>
+      <div class="f-name">${f.name}</div>
+      <div class="f-price">${owned?'✅':'💰'+f.price}</div>
+    </div>`;
+  }).join('');
+
+  const grid = document.getElementById('houseGrid');
+  grid.innerHTML = G.house.map((cell,i) => {
+    const f = cell ? FURNITURE.find(ff=>ff.id===cell) : null;
+    return `<div class="house-cell ${cell?'placed':''}" onclick="placeInCell(${i})">${f?f.icon:''}</div>`;
+  }).join('');
+}
+
+function selectFurn(id) {
+  if(!G.ownedFurniture.includes(id)) {
+    const f = FURNITURE.find(ff=>ff.id===id);
+    if(G.coins < f.price) { showToast('Недостатньо грошей!'); return; }
+    openModal(`
+      <div class="modal-handle"></div>
+      <div class="modal-title">Купити ${f.icon} ${f.name}?</div>
+      <p style="text-align:center;color:var(--text2);margin-bottom:16px">Ціна: 💰${f.price}</p>
+      <button class="btn btn-primary" onclick="buyFurniture('${id}')">Купити</button>
+    `);
+    return;
+  }
+  selectedFurn = selectedFurn === id ? null : id;
+  renderHouse();
+}
+
+function buyFurniture(id) {
+  const f = FURNITURE.find(ff=>ff.id===id);
+  G.coins -= f.price;
+  G.ownedFurniture.push(id);
+  closeModalForce();
+  selectedFurn = id;
+  saveGame();
+  renderAll();
+  showToast(`${f.icon} ${f.name} куплено!`);
+  checkAchievements();
+}
+
+function placeInCell(i) {
+  if(selectedFurn) {
+    if(!G.ownedFurniture.includes(selectedFurn)) return;
+    G.house[i] = selectedFurn;
+    saveGame();
+    renderHouse();
+  } else if(G.house[i]) {
+    G.house[i] = null;
+    saveGame();
+    renderHouse();
+  }
+}
+
+function clearFurniture() {
+  G.house = Array(36).fill(null);
+  saveGame();
+  renderHouse();
+  showToast('Будинок очищено');
+}
+
+// --- SHOP ---
+function renderShop() {
+  const list = document.getElementById('shopList');
+  list.innerHTML = SHOP_ITEMS.map(item => {
+    const effects = item.effect ? Object.entries(item.effect).map(([k,v])=>{
+      const n = NEEDS.find(n=>n.id===k);
+      return `${n?n.icon:''} ${v>0?'+':''}${v}`;
+    }).join(' ') : (item.social_gift ? '💝 Подарунок для NPC' : '');
+    return `<div class="list-item" onclick="buyItem('${item.id}')">
+      <span class="li-icon">${item.icon}</span>
+      <div class="li-info">
+        <div class="li-name">${item.name}</div>
+        <div class="li-desc">${effects}</div>
+      </div>
+      <button class="li-action">💰${item.price}</button>
+    </div>`;
+  }).join('');
+}
+
+function buyItem(id) {
+  const item = SHOP_ITEMS.find(i=>i.id===id);
+  if(G.coins < item.price) { showToast('Недостатньо грошей!'); return; }
+  
+  if(item.social_gift) {
+    showGiftModal();
+    return;
+  }
+  
+  G.coins -= item.price;
+  if(item.effect) {
+    for(const[k,v] of Object.entries(item.effect)) {
+      G.needs[k] = Math.min(100, Math.max(0, (G.needs[k]||0)+v));
+    }
+  }
+  if(item.xp) addXP(item.xp);
+  saveGame();
+  renderAll();
+  showToast(`${item.icon} ${item.name} куплено!`);
+}
+
+// --- SOCIAL ---
+function renderSocial() {
+  const list = document.getElementById('socialList');
+  list.innerHTML = G.npcs.map(npc => {
+    const hearts = Math.floor(npc.relationship / 20);
+    const heartStr = '❤️'.repeat(hearts) + '🤍'.repeat(5-hearts);
+    const rel = npc.relationship >= 80 ? '💕 Закоханість' : npc.relationship >= 50 ? '😊 Друзі' : npc.relationship >= 20 ? '🤝 Знайомі' : '😐 Незнайомці';
+    return `<div class="list-item" onclick="interactNPC('${npc.id}')">
+      <span class="li-icon">${npc.avatar}</span>
+      <div class="li-info">
+        <div class="li-name">${npc.name}</div>
+        <div class="li-desc">${heartStr}<br>${rel}</div>
+      </div>
+      <button class="li-action">💬</button>
+    </div>`;
+  }).join('');
+}
+
+function interactNPC(id) {
+  const npc = G.npcs.find(n=>n.id===id);
+  const actions = [
+    {name:'Поговорити',icon:'💬',rel:5,social:15},
+    {name:'Жартувати',icon:'😂',rel:8,social:10,fun:10},
+    {name:'Компліменти',icon:'🥰',rel:12,social:5},
+    {name:'Обійняти',icon:'🤗',rel:10,social:20,req:30},
+    {name:'Подарунок',icon:'🎁',rel:20,cost:100,social:10},
+  ];
+  if(npc.relationship >= 60) {
+    actions.push({name:'Побачення',icon:'💕',rel:25,cost:150,fun:20,social:30,req:60});
+  }
+  if(npc.relationship >= 90) {
+    actions.push({name:'Поцілунок',icon:'💋',rel:15,fun:25,social:25,req:90});
+  }
+
+  openModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">${npc.avatar} ${npc.name}</div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text2)">Стосунки: ${npc.relationship}%</div>
+      <div class="need-bar" style="margin-top:6px"><div class="need-fill high" style="width:${npc.relationship}%;background:linear-gradient(90deg,var(--pink),var(--purple))"></div></div>
+    </div>
+    ${actions.map(a => {
+      const locked = a.req && npc.relationship < a.req;
+      return `<div class="list-item" style="opacity:${locked?'0.4':'1'}" onclick="${locked?'':`npcAction('${npc.id}','${a.name}',${a.rel},${a.social||0},${a.fun||0},${a.cost||0})`}">
+        <span class="li-icon">${a.icon}</span>
+        <div class="li-info">
+          <div class="li-name">${a.name}</div>
+          <div class="li-desc">💕+${a.rel} ${a.cost?'💰'+a.cost:''} ${locked?'🔒 Потрібно '+a.req+'%':''}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  `);
+}
+
+function npcAction(id, name, rel, social, fun, cost) {
+  const npc = G.npcs.find(n=>n.id===id);
+  if(cost && G.coins < cost) { showToast('Недостатньо грошей!'); return; }
+  if(cost) G.coins -= cost;
+  
+  npc.relationship = Math.min(100, npc.relationship + rel);
+  G.needs.social = Math.min(100, (G.needs.social||0) + social);
+  if(fun) G.needs.fun = Math.min(100, (G.needs.fun||0) + fun);
+  
+  addXP(10);
+  advanceTime(1);
+  saveGame();
+  renderAll();
+  closeModalForce();
+  showToast(`${name} з ${npc.name}! 💕+${rel}`);
+  checkAchievements();
+}
+
+function showGiftModal() {
+  openModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎁 Кому подарувати?</div>
+    ${G.npcs.map(n =>
+      `<div class="list-item" onclick="giveGift('${n.id}')">
+        <span class="li-icon">${n.avatar}</span>
+        <div class="li-info"><div class="li-name">${n.name}</div></div>
+      </div>`
+    ).join('')}
+  `);
+}
+
+function giveGift(id) {
+  const npc = G.npcs.find(n=>n.id===id);
+  G.coins -= 100;
+  npc.relationship = Math.min(100, npc.relationship + 20);
+  G.needs.social = Math.min(100, (G.needs.social||0) + 15);
+  addXP(15);
+  saveGame();
+  renderAll();
+  closeModalForce();
+  showToast(`🎁 Подарунок для ${npc.name}! 💕+20`);
+}
+
+// --- PROFILE ---
+function renderProfile() {
+  document.getElementById('profileAvatar').textContent = G.avatar;
+  document.getElementById('profileName').textContent = G.name;
+  
+  const traitDiv = document.getElementById('profileTraits');
+  traitDiv.innerHTML = G.traits.map(tid => {
+    const t = TRAITS.find(tt=>tt.id===tid);
+    return t ? `<span class="trait-chip selected">${t.icon} ${t.name}</span>` : '';
+  }).join(' ');
+
+  const xpNeeded = G.level * 100;
+  const pct = Math.min(100, (G.xp / xpNeeded) * 100);
+  document.getElementById('xpFill').style.width = pct+'%';
+  document.getElementById('xpText').textContent = G.xp+' / '+xpNeeded+' XP';
+  document.getElementById('lvlText').textContent = 'Рів. '+G.level;
+
+  const job = JOBS.find(j=>j.id===G.job);
+  const nextJob = JOBS.find(j=>j.lvl > G.level) || JOBS[JOBS.length-1];
+  document.getElementById('careerInfo').innerHTML = `
+    <div class="stat-row"><span>Робота</span><span class="stat-val">${job.icon} ${job.name}</span></div>
+    <div class="stat-row"><span>Зарплата</span><span class="stat-val">💰${job.salary}/зміну</span></div>
+    <div class="stat-row"><span>Наступна</span><span class="stat-val">${nextJob.icon} ${nextJob.name} (Рів.${nextJob.lvl})</span></div>
+    <button class="btn btn-secondary btn-small" style="margin-top:10px" onclick="showJobModal()">📋 Змінити роботу</button>
+  `;
+
+  const ACHS = getAchievementsList();
+  document.getElementById('achievementsList').innerHTML = ACHS.map(a => {
+    const done = G.achievements.includes(a.id);
+    return `<div class="list-item" style="opacity:${done?'1':'0.5'}">
+      <span class="li-icon">${done?a.icon:'🔒'}</span>
+      <div class="li-info">
+        <div class="li-name">${a.name}</div>
+        <div class="li-desc">${a.desc}</div>
+      </div>
+      ${done?'<span style="color:var(--accent)">✅</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function showJobModal() {
+  const available = JOBS.filter(j=>j.lvl <= G.level && j.id !== G.job);
+  openModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">💼 Вибрати роботу</div>
+    ${available.map(j =>
+      `<div class="list-item" onclick="changeJob('${j.id}')">
+        <span class="li-icon">${j.icon}</span>
+        <div class="li-info">
+          <div class="li-name">${j.name}</div>
+          <div class="li-desc">💰${j.salary}/зміну | Рів.${j.lvl}+</div>
+        </div>
+        <button class="li-action">Обрати</button>
+      </div>`
+    ).join('')}
+  `);
+}
+
+function changeJob(id) {
+  G.job = id;
+  const job = JOBS.find(j=>j.id===id);
+  saveGame();
+  renderAll();
+  closeModalForce();
+  showToast(`${job.icon} Нова робота: ${job.name}!`);
+}
+
+// --- CORE MECHANICS ---
+function doAction(id) {
+  const a = ACTIONS.find(aa=>aa.id===id);
+  if(!a) return;
+  if(a.req && !G.house.includes(a.req) && !G.ownedFurniture.includes(a.req)) {
+    showToast('Потрібен: '+FURNITURE.find(f=>f.id===a.req)?.name);
+    return;
+  }
+  if(a.cost && G.coins < a.cost) { showToast('Недостатньо грошей!'); return; }
+  
+  if(a.cost) G.coins -= a.cost;
+  for(const[k,v] of Object.entries(a.needs)) {
+    G.needs[k] = Math.min(100, Math.max(0, (G.needs[k]||0)+v));
+  }
+  
+  // Trait bonuses
+  if(G.traits.includes('foodie') && (id==='eat'||id==='cook')) {
+    G.needs.hunger = Math.min(100, G.needs.hunger + 10);
+  }
+  if(G.traits.includes('sporty') && id==='exercise') {
+    addXP(10);
+  }
+  if(G.traits.includes('social') && (id==='chat'||id==='party')) {
+    G.needs.social = Math.min(100, G.needs.social + 10);
+  }
+  if(G.traits.includes('creative') && (id==='music'||id==='game')) {
+    G.needs.fun = Math.min(100, G.needs.fun + 10);
+  }
+  
+  addXP(a.xp || 5);
+  G.totalActions++;
+  advanceTime(a.time||1);
+  
+  // House comfort bonus
+  const comfortBonus = calcHouseComfort();
+  G.needs.comfort = Math.min(100, (G.needs.comfort||0) + comfortBonus * 0.1);
+  
+  saveGame();
+  renderAll();
+  showToast(`${a.icon} ${a.name}!`);
+  checkAchievements();
+}
+
+function goToWork() {
+  const job = JOBS.find(j=>j.id===G.job);
+  if(job.salary === 0) { showToast('Спочатку знайди роботу!'); return; }
+  if(G.needs.energy < 15) { showToast('Занадто втомлений!'); return; }
+  
+  G.coins += job.salary;
+  G.totalEarned += job.salary;
+  G.needs.energy = Math.max(0, G.needs.energy - 20);
+  G.needs.fun = Math.max(0, G.needs.fun - 10);
+  G.needs.hunger = Math.max(0, G.needs.hunger - 15);
+  
+  addXP(20);
+  G.totalActions++;
+  advanceTime(3);
+  saveGame();
+  renderAll();
+  showToast(`💼 Заробив 💰${job.salary}!`);
+  checkAchievements();
+}
+
+function advanceTime(hours) {
+  G.timeSlot += hours;
+  while(G.timeSlot >= 4) {
+    G.timeSlot -= 4;
+    G.day++;
+    decayNeeds(2);
+  }
+}
+
+function addXP(amount) {
+  G.xp += amount;
+  const needed = G.level * 100;
+  while(G.xp >= needed) {
+    G.xp -= needed;
+    G.level++;
+    showToast(`🎉 Рівень ${G.level}!`);
+    // Auto-unlock best available job
+    const bestJob = [...JOBS].reverse().find(j=>j.lvl <= G.level);
+    if(bestJob && JOBS.findIndex(j=>j.id===bestJob.id) > JOBS.findIndex(j=>j.id===G.job)) {
+      G.job = bestJob.id;
+      showToast(`💼 Нова робота: ${bestJob.name}!`);
+    }
+  }
+}
+
+function decayNeeds(multiplier) {
+  const m = multiplier || 1;
+  NEEDS.forEach(n => {
+    G.needs[n.id] = Math.max(0, (G.needs[n.id]||0) - n.decay * m);
+  });
+  // Lazy trait - slower energy decay
+  if(G.traits.includes('lazy')) {
+    G.needs.energy = Math.min(100, G.needs.energy + 0.5 * m);
+  }
+}
+
+function calcHouseComfort() {
+  let comfort = 0;
+  G.house.forEach(cell => {
+    if(cell) {
+      const f = FURNITURE.find(ff=>ff.id===cell);
+      if(f && f.comfort) comfort += f.comfort;
+    }
+  });
+  return Math.min(comfort, 50);
+}
+
+function startDecayLoop() {
+  setInterval(()=>{
+    if(!G) return;
+    decayNeeds(0.3);
+    saveGame();
+    renderNeeds();
+  }, 30000);
+}
+
+// --- ACHIEVEMENTS ---
+function getAchievementsList() {
+  return [
+    {id:'first_action',name:'Перший крок',desc:'Виконай першу дію',icon:'🎯',check:()=>G.totalActions>=1},
+    {id:'home_maker',name:'Домашній затишок',desc:'Постав 5 меблів',icon:'🏠',check:()=>G.house.filter(h=>h).length>=5},
+    {id:'social_butterfly',name:'Душа компанії',desc:'Подружись з 3 NPC',icon:'🦋',check:()=>G.npcs.filter(n=>n.relationship>=50).length>=3},
+    {id:'worker',name:'Працьовитий',desc:'Заробити 1000 монет',icon:'💪',check:()=>G.totalEarned>=1000},
+    {id:'rich',name:'Багатій',desc:'Мати 5000 монет',icon:'💰',check:()=>G.coins>=5000},
+    {id:'level5',name:'Досвідчений',desc:'Досягти рівня 5',icon:'⭐',check:()=>G.level>=5},
+    {id:'level10',name:'Ветеран',desc:'Досягти рівня 10',icon:'🏆',check:()=>G.level>=10},
+    {id:'lover',name:'Романтик',desc:'Стосунки 80%+ з NPC',icon:'💕',check:()=>G.npcs.some(n=>n.relationship>=80)},
+    {id:'collector',name:'Колекціонер',desc:'Купити 8 видів меблів',icon:'🎪',check:()=>G.ownedFurniture.length>=8},
+    {id:'day10',name:'Марафонець',desc:'Прожити 10 днів',icon:'📅',check:()=>G.day>=10},
+  ];
+}
+
+function checkAchievements() {
+  const achs = getAchievementsList();
+  let newAch = false;
+  achs.forEach(a => {
+    if(!G.achievements.includes(a.id) && a.check()) {
+      G.achievements.push(a.id);
+      G.coins += 50;
+      newAch = true;
+      setTimeout(()=>showToast(`🏆 ${a.name}! +50💰`), 500);
+    }
+  });
+  if(newAch) saveGame();
+}
+
+// --- UI HELPERS ---
+function switchTab(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page'+name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(e) {
+  if(e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+}
+function closeModalForce() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// --- START ---
+init();
+</script>
+</body>
+</html>
